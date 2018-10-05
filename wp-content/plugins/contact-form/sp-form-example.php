@@ -10,6 +10,7 @@ Author URI: http://fb.com
     //
     // the plugin code will go here..
     //
+    include 'widget-v.php';
 
     function html_form_code() {
         echo '<form action="' . esc_url( $_SERVER['REQUEST_URI'] ) . '" method="post">';
@@ -44,20 +45,6 @@ Author URI: http://fb.com
             $email   = sanitize_email( $_POST["cf-email"] );
             $phone = sanitize_text_field( $_POST["cf-phone"] );
             $message = esc_textarea( $_POST["cf-message"] );
-    
-            // get the blog administrator's email address
-            // $to = get_option( 'admin_email' );
-    
-            // $headers = "From: $name <$email>" . "\r\n";
-    
-            // // If email has been process for sending, display a success message
-            // if ( wp_mail( $to, $subject, $message, $headers ) ) {
-            //     echo '<div>';
-            //     echo '<p>Thanks for contacting me, expect a response soon.</p>';
-            //     echo '</div>';
-            // } else {
-            //     echo 'An unexpected error occurred';
-            // }
             
             if ( $wpdb->insert(
                 'user_testimonial',
