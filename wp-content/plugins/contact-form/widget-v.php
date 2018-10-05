@@ -27,7 +27,7 @@
 
             echo $args['before_widget'] . $args['before_title'] . $title . $args['after_title'];
             echo $testi->testimonial;
-
+           
             echo $args['after_widget'];
           }
 

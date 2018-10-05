@@ -69,12 +69,6 @@ Author URI: http://fb.com
 
     add_shortcode( 'sitepoint_contact_form', 'cf_shortcode' );
 
-    echo '<style>';
-    echo 'table {';
-    echo '    border: 1px solid black;
-        border-collapse: collapse;
-    } </style>';
-
     add_action( 'admin_menu', 'my_admin_menu' );
 
     function my_admin_menu() {
@@ -88,14 +82,12 @@ Author URI: http://fb.com
         echo '<h2>Welcome To Admin Dashboard</h2>';
         echo '</div>';
 
-        $wpdb->show_errors(); 
         $datas = $wpdb->get_results( 
             "SELECT * FROM user_testimonial"
         );
 
         if (empty($datas)) {
-            echo 'cannot get data';
-            $wpdb->print_error();
+            return 'cannot get data';
         }
         
         echo '<table style="width:90%">';
@@ -135,8 +127,7 @@ Author URI: http://fb.com
                         'id' => $id
                     )
                 ) == false ) {
-                    $wpdb->show_errors;
-                    $wpdb->print_error;
+                    return 'Cannot delete data!';
                 };
             }
         }
