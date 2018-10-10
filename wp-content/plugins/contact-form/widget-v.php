@@ -1,5 +1,4 @@
 <?php
-
     function testimonial() { 
       register_widget( 'testimonial_widget' );
     }
