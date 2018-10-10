@@ -16,18 +16,18 @@ Author URI: http://fb.com
         echo '<form action="' . esc_url( $_SERVER['REQUEST_URI'] ) . '" method="post">';
         echo '<p>';
         echo 'Your Name (required) <br />';
-        echo '<input type="text" name="cf-name" pattern="[a-zA-Z0-9 ]+" size="40" required/>';
+        echo '<input type="text" name="cf-name" pattern="[a-zA-Z0-9 ]+" size="40"/>';
         echo '</p>';
         echo 'Your Email (required) <br />';
-        echo '<input type="email" name="cf-email" size="40" required/>';
+        echo '<input type="email" name="cf-email" size="40" />';
         echo '</p>';
         echo '<p>';
         echo 'Phone Number (required) <br />';
-        echo '<input type="number" name="cf-phone" size="40" required/>';
+        echo '<input type="text" name="cf-phone" size="40" />';
         echo '</p>';
         echo '<p>';
         echo 'Your Message (required) <br />';
-        echo '<textarea rows="10" cols="50" name="cf-message" required></textarea>';
+        echo '<textarea rows="10" cols="50" name="cf-message" ></textarea>';
         echo '</p>';
         echo '<p><input type="submit" name="cf-submitted" value="Send"/></p>';
         echo '</form>';
@@ -37,34 +37,39 @@ Author URI: http://fb.com
         global $wpdb;
 
         $name = $email = $phone = $message = '';
-        $nameErr = $emailErr = $phoneErr = $testiErr = '';
-
+        $errors = [];
+        
         // if the submit button is clicked, input the data
         if ( isset( $_POST['cf-submitted'] ) ) {
             if (empty($_POST["cf-name"])){
-                echo $nameErr = "Name is required! <br>";
+                $errors[] = "Name is required! <br>";
             } elseif( isset( $_POST['cf-name'])) {
                 $name = sanitize_text_field( $_POST["cf-name"] );
             }
             
             if (empty($_POST["cf-email"])){
-                echo $emailErr = " Email is required! <br>";
+                $errors[] = " Email is required! <br>";
             } elseif( isset( $_POST['cf-email'])) {
                 $email = sanitize_text_field( $_POST["cf-email"] );
             }
 
             if (empty($_POST["cf-phone"])){
-                echo $phoneErr = " Phone number is required! <br>";
+                $errors[] = " Phone number is required! <br>";
             } elseif( isset( $_POST['cf-phone'])) {
                 $phone = sanitize_text_field( $_POST["cf-phone"] );
             }
 
             if (empty($_POST["cf-message"])){
-                echo $testiErr = " Message is required! <br>";
+                $errors[] = " Message is required! <br>";
             } elseif( isset( $_POST['cf-message'])) {
                 $message = sanitize_text_field( $_POST["cf-message"] );
             }
             
+            foreach ($errors as $error) {
+                echo $error;
+                echo "<br>";
+            }
+
             if( !empty($_POST['cf-name']) && !empty($_POST['cf-email']) && !empty($_POST['cf-phone']) && !empty($_POST['cf-message'])) {
                 if ( $wpdb->insert(
                     'user_testimonial',
@@ -75,8 +80,8 @@ Author URI: http://fb.com
                         'testimonial' => $message
                     )) == false ) {
                         echo 'Maaf, pesan anda tidak terkirim. Tolong ulangi lagi!';
-                    };
-                }
+                };
+            }
         }
     }
 
