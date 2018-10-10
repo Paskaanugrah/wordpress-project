@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Example Contact Form Plugin
+Plugin Name: Contact Form Plugin
 Plugin URI: http://example.com
 Description: Simple non-bloated WordPress Contact Form
 Version: 1.0
@@ -16,19 +16,18 @@ Author URI: http://fb.com
         echo '<form action="' . esc_url( $_SERVER['REQUEST_URI'] ) . '" method="post">';
         echo '<p>';
         echo 'Your Name (required) <br />';
-        echo '<input type="text" name="cf-name" pattern="[a-zA-Z0-9 ]+" value="' . ( isset( $_POST["cf-name"] ) ? esc_attr( $_POST["cf-name"] ) : '' ) . '" size="40" />';
+        echo '<input type="text" name="cf-name" pattern="[a-zA-Z0-9 ]+" size="40" required/>';
         echo '</p>';
-        echo '<p>';
         echo 'Your Email (required) <br />';
-        echo '<input type="email" name="cf-email" value="' . ( isset( $_POST["cf-email"] ) ? esc_attr( $_POST["cf-email"] ) : '' ) . '" size="40" />';
+        echo '<input type="email" name="cf-email" size="40" required/>';
         echo '</p>';
         echo '<p>';
         echo 'Phone Number (required) <br />';
-        echo '<input type="text" name="cf-phone" value="' . ( isset( $_POST["cf-phone"] ) ? esc_attr( $_POST["cf-phone"] ) : '' ) . '" size="40" />';
+        echo '<input type="number" name="cf-phone" size="40" required/>';
         echo '</p>';
         echo '<p>';
         echo 'Your Message (required) <br />';
-        echo '<textarea rows="10" cols="35" name="cf-message">' . ( isset( $_POST["cf-message"] ) ? esc_attr( $_POST["cf-message"] ) : '' ) . '</textarea>';
+        echo '<textarea rows="10" cols="50" name="cf-message" required></textarea>';
         echo '</p>';
         echo '<p><input type="submit" name="cf-submitted" value="Send"/></p>';
         echo '</form>';
@@ -37,32 +36,54 @@ Author URI: http://fb.com
     function input_data() {
         global $wpdb;
 
+        $name = $email = $phone = $message = '';
+        $nameErr = $emailErr = $phoneErr = $testiErr = '';
+
         // if the submit button is clicked, input the data
         if ( isset( $_POST['cf-submitted'] ) ) {
-    
-            // sanitize form values
-            $name    = sanitize_text_field( $_POST["cf-name"] );
-            $email   = sanitize_email( $_POST["cf-email"] );
-            $phone = sanitize_text_field( $_POST["cf-phone"] );
-            $message = esc_textarea( $_POST["cf-message"] );
+            if (empty($_POST["cf-name"])){
+                echo $nameErr = "Name is required! <br>";
+            } elseif( isset( $_POST['cf-name'])) {
+                $name = sanitize_text_field( $_POST["cf-name"] );
+            }
             
-            if ( $wpdb->insert(
-                'user_testimonial',
-                array(
-                    'name' => $name,
-                    'email' => $email,
-                    'phone_number' => $phone,
-                    'testimonial' => $message
-                )) == false ) {
-                    echo 'error inserting data!';
-                };
+            if (empty($_POST["cf-email"])){
+                echo $emailErr = " Email is required! <br>";
+            } elseif( isset( $_POST['cf-email'])) {
+                $email = sanitize_text_field( $_POST["cf-email"] );
+            }
+
+            if (empty($_POST["cf-phone"])){
+                echo $phoneErr = " Phone number is required! <br>";
+            } elseif( isset( $_POST['cf-phone'])) {
+                $phone = sanitize_text_field( $_POST["cf-phone"] );
+            }
+
+            if (empty($_POST["cf-message"])){
+                echo $testiErr = " Message is required! <br>";
+            } elseif( isset( $_POST['cf-message'])) {
+                $message = sanitize_text_field( $_POST["cf-message"] );
+            }
+            
+            if( !empty($_POST['cf-name']) && !empty($_POST['cf-email']) && !empty($_POST['cf-phone']) && !empty($_POST['cf-message'])) {
+                if ( $wpdb->insert(
+                    'user_testimonial',
+                    array(
+                        'name' => $name,
+                        'email' => $email,
+                        'phone_number' => $phone,
+                        'testimonial' => $message
+                    )) == false ) {
+                        echo 'Maaf, pesan anda tidak terkirim. Tolong ulangi lagi!';
+                    };
+                }
         }
     }
 
     function cf_shortcode() {
         ob_start();
-        input_data();
         html_form_code();
+        input_data();
     
         return ob_get_clean();
     }
@@ -72,7 +93,7 @@ Author URI: http://fb.com
     add_action( 'admin_menu', 'my_admin_menu' );
 
     function my_admin_menu() {
-        add_menu_page( 'Admin Dashboard', 'Admin', 'manage_options', 'myplugin/myplugin-admin-page.php', 'myplguin_admin_page', 'dashicons-admin-users', 10);
+        add_menu_page( 'Admin Dashboard', 'Admin', 'manage_options', 'myplugin-admin-page.php', 'myplguin_admin_page', 'dashicons-admin-users', 10);
     }
 
     function myplguin_admin_page(){
@@ -81,6 +102,7 @@ Author URI: http://fb.com
         echo '<div class="wrap">';
         echo '<h2>Welcome To Admin Dashboard</h2>';
         echo '</div>';
+        echo '<div class="wrap">';
 
         $datas = $wpdb->get_results( 
             "SELECT * FROM user_testimonial"
@@ -114,6 +136,7 @@ Author URI: http://fb.com
             </td>';
             echo '</tr>';
         }
+        // echo '<input type="submit" class="button button-primary">';
         echo '</table>';
 
         if ( isset( $_GET['delete'] ) ) {
@@ -130,5 +153,7 @@ Author URI: http://fb.com
                     return 'Cannot delete data!';
                 };
             }
+
+            echo '</div>';
         }
 ?>

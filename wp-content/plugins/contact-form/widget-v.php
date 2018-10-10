@@ -42,7 +42,7 @@
 
           public function update( $new_instance, $old_instance ) {
             $instance = $old_instance;
-            $instance[ 'title' ] = ( !empty( strip_tags( $new_instance[ 'title' ] )) ? strip_tags( $new_instance[ 'title' ] ) : $old_instance ) ;
+            $instance[ 'title' ] = ( !empty( strip_tags( $new_instance[ 'title' ] )) ? strip_tags( $new_instance[ 'title' ] ) : $old_instance['title'] ) ;
             return $instance;
           }
     }
