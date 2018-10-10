@@ -37,7 +37,7 @@ Author URI: http://fb.com
         global $wpdb;
 
         $name = $email = $phone = $message = '';
-        $errors = [];
+        $errors[] = null;
         
         // if the submit button is clicked, input the data
         if ( isset( $_POST['cf-submitted'] ) ) {
@@ -66,7 +66,7 @@ Author URI: http://fb.com
             }
             
             foreach ($errors as $error) {
-                echo $error;
+                echo "<strong>" . $error . "</strong>";
                 echo "<br>";
             }
 
