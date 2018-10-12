@@ -164,14 +164,10 @@
                 $attach_image = wp_get_attachment_image_src($image_id, 'medium');
                 $you_have_img = is_array( $attach_image );
                 
-                $meta = esc_html( get_post_meta( $team_id, 'position', true ) );
-                $position = !empty ( $meta ) ? $meta : '';
-                $meta = esc_html( get_post_meta( $team_id, 'email', true ) );
-                $email = !empty ( $meta ) ? $meta : '';
-                $meta = esc_html( get_post_meta( $team_id, 'phone', true ) );
-                $phone = !empty ( $meta ) ? $meta : '';
-                $meta = esc_html( get_post_meta( $team_id, 'website', true ) );
-                $website = !empty ( $meta ) ? $meta : '';
+                $position = esc_html( get_post_meta( $team_id, 'position', true ) );
+                $email = esc_html( get_post_meta( $team_id, 'email', true ) );
+                $phone = esc_html( get_post_meta( $team_id, 'phone', true ) );
+                $website = esc_html( get_post_meta( $team_id, 'website', true ) );
                 
                 ?>
                     <div class="custom-img-container">
