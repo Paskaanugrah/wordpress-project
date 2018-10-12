@@ -1,7 +1,7 @@
 <?php
     /*
     Plugin Name: Team Members Plugin
-    Plugin URI: www.nothing.com
+    Plugin URI: -
     Description: Describe your team project.
     Version: 1.0
     Author: Paska a
@@ -39,9 +39,9 @@
         );
     }
 
-    add_action( 'admin_init', 'my_admin' );
+    add_action( 'admin_init', 'meta_box' );
 
-    function my_admin() {
+    function meta_box() {
         add_meta_box( 
             'team_member_metabox',
             'Team Member Details',
@@ -52,12 +52,7 @@
         );
     }
 
-    add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
-
     function display_team_member_metabox( $team_member ) {
-
-        wp_enqueue_media( $team_member );
-        
         $upload_link = esc_url( get_upload_iframe_src( 'image', $team_member->ID ) );
 
         // Retrieve current data based on ID
@@ -67,41 +62,37 @@
         $website = esc_html( get_post_meta( $team_member->ID, 'website', true ) );
         $image_id = esc_html( get_post_meta( $team_member->ID, 'image_id', true ) );
 
-        $attach_image = wp_get_attachment_image_src ($image_id, 'medium');
-
-        var_dump($attach_image);
+        $attach_image = wp_get_attachment_image_src($image_id, 'medium');
 
         $you_have_img = is_array( $attach_image );
-
-        var_dump($you_have_img);
         ?>
 
-        <script type="text/javascript" src="img.js"></script>
-        <div class="meta-box-id.postbox">
-        <table>
-            <tr>
-                <td style="width: 100px">Position </td>
-                <td><input type="text" size="80" name="team_member_position" value="<?php echo $position; ?>" /></td>
-            </tr>
-             <tr>
-                <td>Email</td>
-                <td><input type="email" size="80" name="team_member_email" value="<?php echo $email; ?>" /></td>
-            </tr>
-            <tr>
-                <td>Phone</td>
-                <td><input type="text" size="80" name="team_member_phone" value="<?php echo $phone; ?>" /></td>
-            </tr>
-            <tr>
-                <td>Website</td>
-                <td><input type="text" size="80" name="team_member_website" value="<?php echo $website; ?>" /></td>
-            </tr>
-            </table>
+        <div id="meta-box-id">
+            <table>
+                <tr>
+                    <td style="width: 100px">Position </td>
+                    <td><input type="text" size="80" name="team_member_position" value="<?php echo $position; ?>" /></td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td><input type="email" size="80" name="team_member_email" value="<?php echo $email; ?>" /></td>
+                </tr>
+                <tr>
+                    <td>Phone</td>
+                    <td><input type="text" size="80" name="team_member_phone" value="<?php echo $phone; ?>" /></td>
+                </tr>
+                <tr>
+                    <td>Website</td>
+                    <td><input type="text" size="80" name="team_member_website" value="<?php echo $website; ?>" /></td>
+                </tr>
+                </table>
                 <p>Image</p>
                 <div class="custom-img-container">
                     <?php if ( $you_have_img ) : ?>
-                        <img src="<?php echo $attach_image ?>" alt="" style="max-width:100%;" />
+                        <img src="<?php echo $attach_image[0] ?>" alt="" style="height:400px; width:400px" />
                     <?php endif; ?>
                 </div>
+
                 <!-- Your add & remove image links -->
                 <p class="hide-if-no-js">
                     <a class="upload-custom-img <?php if ( $you_have_img  ) { echo 'hidden'; } ?>" 
@@ -116,9 +107,17 @@
 
                 <!-- A hidden input to set and post the chosen image id -->
                 <input class="custom-img-id" name="custom-img-id" type="hidden" value="<?php echo esc_attr( $image_id ); ?>" />
-            </div>
+        </div>
         <?php
     }
+
+     /* Add the media uploader script */
+    function my_media_lib_uploader_enqueue() {
+        wp_enqueue_media();
+        wp_register_script( 'media-lib-uploader-js', plugins_url( 'img.js' , __FILE__ ), array('jquery') );
+        wp_enqueue_script( 'media-lib-uploader-js' );
+    }
+    add_action('admin_enqueue_scripts', 'my_media_lib_uploader_enqueue');
 
     add_action( 'save_post', 'add_team_members_field', 10, 2 );
 
@@ -126,53 +125,64 @@
         // Check post type for movie reviews
         if ( $team_member->post_type == 'team_members' ) {
             // Store data in post meta table if present in post data
-            if ( !empty( $_POST['team_member_position'] ) ) {
+            if ( isset( $_POST['team_member_position'] )  ) {
                 update_post_meta( $team_member_id, 'position', $_POST['team_member_position'] );
             }
-            if ( !empty( $_POST['team_member_email'] ) ) {
+            if ( isset( $_POST['team_member_email'] ) ) {
                 update_post_meta( $team_member_id, 'email', $_POST['team_member_email'] );
             }
-            if ( !empty( $_POST['team_member_phone'] ) ) {
+            if ( isset( $_POST['team_member_phone'] ) ) {
                 update_post_meta( $team_member_id, 'phone', $_POST['team_member_phone'] );
             }
-            if ( !empty( $_POST['team_member_website'] ) ) {
+            if ( isset( $_POST['team_member_website'] ) ) {
                 update_post_meta( $team_member_id, 'website', $_POST['team_member_website'] );
             }
-            if ( !empty( $_POST['team_member_image'] ) ) {
-                update_post_meta( $team_member_id, 'image_id', $_POST['team_member_image'] );
+            if ( isset( $_POST['custom-img-id'] ) ) {
+                update_post_meta( $team_member_id, 'image_id', $_POST['custom-img-id'] );
             }
         }
     }
+    
+    add_shortcode('team_members' , 'display_team_member');
 
-    function display_team_member( $team_member ) {
-        ?>
-        <div> <?php
-            $position = esc_html( get_post_meta( $team_member->ID, 'position', true ) );
-            $email = esc_html( get_post_meta( $team_member->ID, 'email', true ) );
-            $phone = esc_html( get_post_meta( $team_member->ID, 'phone', true ) );
-            $website = esc_html( get_post_meta( $team_member->ID, 'website', true ) );
-        ?>
-        <table>
-            <tr>
-                <td><?php echo esc_html( $position ) ?></td>
-            </tr>
-            <tr>
-                <td><?php echo esc_html( $email ) ?></td>
-            </tr>
-            <tr>
-                <td><?php echo esc_html( $phone ) ?></td>
-            </tr>
-            <tr>
-                <td><?php echo esc_html( $website ) ?></td>
-            </tr>
-        </table>
-        </div>
-        <?php
-    }
+    function display_team_member() {
+        
+        // args call the custom post type team_members
+        $args = [
+            'post_type' => 'team_members',
+        ];
 
-    function sc_team_members() {
-        display_team_member();
-    }
+        $the_main_loop = new WP_Query( $args );
+            // go main query
+            if($the_main_loop->have_posts()) : 
+                while ($the_main_loop->have_posts() ) :
+                $the_main_loop->the_post(); 
+                
+                $team_id = get_the_id();
+                $image_id = esc_html( get_post_meta( $team_id, 'image_id', true ) );
 
-    add_shortcode('team_member', 'sc_team_members');
+                $attach_image = wp_get_attachment_image_src($image_id, 'medium');
+        
+                $you_have_img = is_array( $attach_image );
+                $position = ( !empty ( esc_html( get_post_meta( $team_id, 'position', true ) ) ) ? esc_html( get_post_meta( $team_id, 'position', true ) ) : '' );
+                $email = ( !empty( esc_html( get_post_meta( $team_id, 'email', true ) ) ) ? esc_html( get_post_meta( $team_id, 'email', true ) ): '' );
+                $phone = ( !empty( esc_html( get_post_meta( $team_id, 'phone', true ) ) ) ? esc_html( get_post_meta( $team_id, 'phone', true ) ): '' );
+                $website = ( !empty( esc_html( get_post_meta( $team_id, 'website', true ) ) ) ? esc_html( get_post_meta( $team_id, 'website', true ) ) : '' );
+                
+                ?>
+                    <div class="custom-img-container">
+                        <?php if ( $you_have_img ) : ?>
+                            <img src="<?php echo $attach_image[0] ?>" alt="Your Image here" style="height:200px; width:200px; border-radius:50%" />
+                        <?php endif; ?>
+                    </div>
+                    <strong><?php echo get_the_title() ?></strong><br>
+                        <i><?php if ( !empty( esc_html( $position ) ) ) { echo $position . "<br>"; } ?></i>                  
+                        <?php if ( !empty( esc_html( $email ) ) ){ echo $email . "<br>"; } ?>
+                        <?php if ( !empty( esc_html( $phone ) ) ){ echo $phone . "<br>"; } ?>
+                        <?php if ( !empty( esc_html( $website ) ) ){ echo $website . "<hr>"; } ?>
+                <?php
+                endwhile;
+            endif;
+            wp_reset_postdata(); // VERY VERY IMPORTANT    
+    }            
 ?>

@@ -2,7 +2,7 @@ jQuery(function($){
 
     // Set all variables to be used in scope
     var frame,
-        metaBox = $('#meta-box-id.postbox'), // Your meta box id here
+        metaBox = $('#meta-box-id'), // Your meta box id here
         addImgLink = metaBox.find('.upload-custom-img'),
         delImgLink = metaBox.find( '.delete-custom-img'),
         imgContainer = metaBox.find( '.custom-img-container'),
@@ -36,7 +36,7 @@ jQuery(function($){
         var attachment = frame.state().get('selection').first().toJSON();
   
         // Send the attachment URL to our custom image input field.
-        imgContainer.append( '<img src="'+attachment.url+'" alt="" style="max-width:100%;"/>' );
+        imgContainer.append( '<img src="'+attachment.url+'" alt="" style="height:400px; widht:400px"/>' );
   
         // Send the attachment id to our hidden input
         imgIdInput.val( attachment.id );
