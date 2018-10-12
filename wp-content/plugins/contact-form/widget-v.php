@@ -17,9 +17,11 @@
 
           public function widget( $args, $instance ) {
             global $wpdb;
+            
+            $blog_id = get_current_blog_id();
 
             $testi = $wpdb->get_row(
-              "SELECT * FROM user_testimonial ORDER BY RAND() LIMIT 1"
+              "SELECT * FROM user_testimonial WHERE blog_id = $blog_id ORDER BY RAND() LIMIT 1"
             );
 
             $title = apply_filters( 'widget_title', $instance[ 'title' ] );

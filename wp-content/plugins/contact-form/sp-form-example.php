@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: Contact Form Plugin
-Plugin URI: http://example.com
-Description: Simple non-bloated WordPress Contact Form
+Plugin Name: Testimonial Form Plugin
+Plugin URI: -
+Description: Simple Testimonial Customer Form
 Version: 1.0
 Author: Paska A
-Author URI: http://fb.com
+Author URI: http://paskaaa.me
 */
     include 'widget-v.php';
 
@@ -31,6 +31,7 @@ Author URI: http://fb.com
     }
 
     function input_data() {
+
         global $wpdb;
 
         $name = $email = $phone = $message = '';
@@ -39,6 +40,7 @@ Author URI: http://fb.com
         // if the submit button is clicked, input the data
         if ( isset( $_POST['cf-submitted'] ) ) {
             
+            $blog_id = get_current_blog_id();
             $name = isset( $_POST["cf-name"] ) ? sanitize_text_field( $_POST["cf-name"] ) : null;
             $email = isset( $_POST["cf-email"] ) ? sanitize_text_field( $_POST["cf-email"] ) : null;
             $phone = isset( $_POST["cf-phone"] ) ? sanitize_text_field( $_POST["cf-phone"] ) : null;
@@ -72,7 +74,8 @@ Author URI: http://fb.com
                         'name'         => $name,
                         'email'        => $email,
                         'phone_number' => $phone,
-                        'testimonial'  => $message
+                        'testimonial'  => $message,
+                        'blog_id'      => $blog_id
                     )) == false ) {
                         return 'Maaf, pesan anda tidak terkirim. Tolong ulangi lagi!';
                 };
@@ -87,7 +90,7 @@ Author URI: http://fb.com
     }
 
     // add shortcode Testimonial Form
-    add_shortcode( 'sitepoint_contact_form', 'cf_shortcode' );
+    add_shortcode( 'testimonial_form', 'cf_shortcode' );
 
     // add Admin Menu
     add_action( 'admin_menu', 'my_admin_menu' );
@@ -104,8 +107,11 @@ Author URI: http://fb.com
         echo '</div>';
         echo '<div class="wrap">';
 
+        // Get the current blog id with wp function
+        $blog_id = get_current_blog_id();
+
         $datas = $wpdb->get_results( 
-            "SELECT * FROM user_testimonial"
+            "SELECT * FROM user_testimonial WHERE blog_id = $blog_id"
         );
 
         if (empty($datas)) {
@@ -140,13 +146,14 @@ Author URI: http://fb.com
 
         if ( isset( $_GET['delete'] ) ) {
             global $wpdb;
-
+            
             $id = $_GET["id"];
     
                 if ( $delete = $wpdb->delete(
                     'user_testimonial',
                     array(
-                        'id' => $id
+                        'id'        => $id,
+                        'blog_id'   => $blog_id
                     )
                 ) == false ) {
                     return 'Cannot delete data!';
