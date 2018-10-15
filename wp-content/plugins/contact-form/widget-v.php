@@ -17,7 +17,7 @@
 
           public function widget( $args, $instance ) {
             global $wpdb;
-            
+
             $blog_id = get_current_blog_id();
 
             $testi = $wpdb->get_row(
@@ -27,7 +27,7 @@
             $title = apply_filters( 'widget_title', $instance[ 'title' ] );
 
             echo $args['before_widget'] . $args['before_title'] . $title . $args['after_title'];
-            echo $testi->testimonial;
+            if ( !empty ($testi->testimonial) ) { echo $testi->testimonial; }
            
             echo $args['after_widget'];
           }
